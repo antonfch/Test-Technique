@@ -27,12 +27,14 @@ const Home = () => {
     return (
         <div className="container mx-auto p-4">
             <h1 className="text-2xl font-bold">Liste des Produits</h1>
+            <button>Ajouter un produit</button>
             <table className="table-auto w-full mt-4 border-collapse border border-gray-300">
                 <thead>
                     <tr className="bg-gray-100">
                         <th className="border px-4 py-2">Nom</th>
                         <th className="border px-4 py-2">Prix</th>
                         <th className="border px-4 py-2">Catégorie</th>
+                        <th className="border px-4 py-2">Action</th>
                     </tr>
                 </thead>
                 <tbody>
