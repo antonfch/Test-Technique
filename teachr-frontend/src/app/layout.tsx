@@ -1,13 +1,12 @@
-
 import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "./Redux/provider";
-import { Nunito } from 'next/font/google';
+import { Nunito } from "next/font/google";
 import { Toaster } from "sonner";
 
 const nunito = Nunito({
-  subsets: ['latin'],
-  weight: ['700'], // Sélectionnez les poids nécessaires
+  subsets: ["latin"],
+  weight: ["700"], // Sélectionnez les poids nécessaires
 });
 
 export const metadata: Metadata = {
@@ -21,10 +20,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={nunito.className}
-      >
+    <html lang="en" className="m-20">
+      <body className={nunito.className}>
         <Providers>{children}</Providers>
         <Toaster />
       </body>

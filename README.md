@@ -132,6 +132,7 @@ Make sure you have the following installed:
 - Make sure the Symfony backend is running before starting the frontend.
 - You can access PHPMyAdmin at `http://localhost/phpmyadmin` to manage your database.
 - Update the `.env` files as necessary to match your local environment.
+- ⚠️⚠️You will come accross an error when adding a product or a category, you'll need to add manually at least category on your database ⚠️⚠️
 
 ---
 
