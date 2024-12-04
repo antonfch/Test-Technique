@@ -48,7 +48,6 @@ class ProduitController extends AbstractController
         EntityManagerInterface $entityManager,
         ValidatorInterface $validator
     ): JsonResponse {
-    
         // Décoder les données de la requête
         $data = json_decode($request->getContent(), true);
     
@@ -63,7 +62,7 @@ class ProduitController extends AbstractController
         $produit->setPrix($data['prix'] ?? null);
         $produit->setDateCreation(new \DateTime());
     
-        // Vérifier si une catégorie a été fournie
+        // Associer une catégorie si elle est fournie
         if (!empty($data['categorie_id'])) {
             $categorie = $entityManager->getRepository(Categorie::class)->find($data['categorie_id']);
             if (!$categorie) {
@@ -82,7 +81,7 @@ class ProduitController extends AbstractController
             return $this->json(['errors' => $errorMessages], 400);
         }
     
-        // Sauvegarder le produit
+        // Persister le produit dans la base de données
         $entityManager->persist($produit);
         $entityManager->flush();
     
@@ -95,6 +94,7 @@ class ProduitController extends AbstractController
             ] : null,
         ], 201);
     }
+    
 
     #[Route('/produits/assign', name: 'assign_produit_to_categorie', methods: ['POST'])]
     public function assignProduitToCategorie(

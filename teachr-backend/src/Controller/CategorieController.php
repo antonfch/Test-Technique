@@ -53,6 +53,13 @@ class CategorieController extends AbstractController
         }
 
         $produits = $categorie->getCategorieProduits();
+        if ($produits instanceof Collection && $produits->isEmpty()) {
+            $entityManager->initializeObject($produits); // Force Doctrine à charger les données
+        }
+
+        if ($produits->isEmpty()) {
+            return $this->json(['error' => 'Aucun produit associé à cette catégorie'], 404);
+        }
 
         return $this->json($produits, 200, [], ['groups' => 'produit_list']);
     }

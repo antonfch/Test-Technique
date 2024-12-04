@@ -3,6 +3,23 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
+interface Produit {
+  id: number;
+  nom: string;
+  description: string;
+  prix: number;
+  categorie_id: { nom: string };
+  dateCreation: string;
+}
+
+type UpdateProduitPayload = {
+  id: number;
+  updatedProduit: {
+    nom: string;
+    description: string;
+    prix: number;
+  };
+};
 // Action asynchrone pour récupérer les produits
 export const fetchProduits = createAsyncThunk(
   "produits/fetchProduits",
@@ -12,10 +29,46 @@ export const fetchProduits = createAsyncThunk(
   }
 );
 
+export const deleteProduit = createAsyncThunk(
+  "produits/deleteProduit",
+  async (id: number) => {
+    await axios.delete(`http://127.0.0.1:8000/produits/${id}`);
+    return id;
+  }
+);
+
+export const updateProduit = createAsyncThunk<
+  Produit, // Ce que l'action retourne
+  UpdateProduitPayload, // Ce que l'action accepte
+  { rejectValue: { message: string } } // Ce que l'action peut rejeter
+>(
+  "produits/updateProduit",
+  async ({ id, updatedProduit }, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(
+        `http://127.0.0.1:8000/produits/${id}`,
+        updatedProduit
+      );
+      return response.data;
+    } catch (error: unknown) {
+      // Vérifiez si l'erreur est une instance de AxiosError
+      if (axios.isAxiosError(error)) {
+        // Vérifiez si une réponse est disponible
+        if (error.response && error.response.data) {
+          return rejectWithValue(error.response.data);
+        }
+      }
+
+      // Retournez un message d'erreur générique si ce n'est pas une erreur Axios
+      return rejectWithValue({ message: "Erreur inconnue" });
+    }
+  }
+);
+
 // Action asynchrone pour ajouter un produit
 export const addProduit = createAsyncThunk(
   "produits/addProduit",
-  async (produit: any) => {
+  async (produit: Partial<Produit>) => {
     const response = await axios.post(
       `http://127.0.0.1:8000/produits`,
       produit
@@ -27,7 +80,7 @@ export const addProduit = createAsyncThunk(
 const produitsSlice = createSlice({
   name: "produits",
   initialState: {
-    produits: [] as any[],
+    produits: [] as Produit[],
     status: "idle",
     error: null as string | null,
   },
@@ -55,6 +108,40 @@ const produitsSlice = createSlice({
         state.produits.push(action.payload);
       })
       .addCase(addProduit.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message || null;
+      });
+    builder
+      .addCase(deleteProduit.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(deleteProduit.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.produits = state.produits.filter(
+          (produit) => produit.id !== action.payload
+        );
+      })
+      .addCase(deleteProduit.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message || null;
+      });
+    builder
+      .addCase(updateProduit.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(updateProduit.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        const index = state.produits.findIndex(
+          (p) => p.id === action.meta.arg.id
+        );
+        if (index !== -1) {
+          state.produits[index] = {
+            ...state.produits[index],
+            ...action.meta.arg.updatedProduit,
+          };
+        }
+      })
+      .addCase(updateProduit.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message || null;
       });

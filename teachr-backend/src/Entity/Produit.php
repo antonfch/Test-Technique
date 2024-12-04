@@ -12,26 +12,26 @@ class Produit
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['produit_list', 'produit_detail'])]
+    #[Groups(['produit_list', 'categorie_detail'])]
     private ?int $id = null;
 
-    #[Groups(['produit_list', 'produit_detail'])]
+    #[Groups(['produit_list', 'categorie_detail'])]
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
-    #[Groups(['produit_detail'])]
+    #[Groups(['produit_list', 'categorie_detail'])]
     #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
 
-    #[Groups(['produit_list', 'produit_detail'])]
+    #[Groups(['produit_list', 'categorie_detail'])]
     #[ORM\Column]
     private ?float $prix = null;
     
-    #[Groups(['produit_list', 'produit_detail'])]
+    #[Groups(['produit_list', 'categorie_detail'])]
     #[ORM\ManyToOne(inversedBy: 'CategorieProduits')]
     private ?Categorie $categorie = null;
 
-    #[Groups(['produit_detail'])]
+    #[Groups(['produit_list'])]
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $dateCreation = null;
 

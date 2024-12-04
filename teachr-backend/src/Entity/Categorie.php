@@ -14,10 +14,10 @@ class Categorie
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['categorie_list', 'categorie_detail'])]
+    #[Groups(['categorie_list', 'categorie_detail','produit_list'])]
     private ?int $id = null;
 
-    #[Groups(['categorie_list', 'categorie_detail'])]
+    #[Groups(['categorie_list', 'categorie_detail','produit_list'])]
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
@@ -25,6 +25,7 @@ class Categorie
      * @var Collection<int, Produit>
      */
     #[ORM\OneToMany(targetEntity: Produit::class, mappedBy: 'categorie')]
+    
     private Collection $CategorieProduits;
 
     public function __construct()
