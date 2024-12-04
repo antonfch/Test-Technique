@@ -3,28 +3,40 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchProduits, deleteProduit } from '../Redux/Features/produits/produitsSlice';
+import { fetchCategories } from '../Redux/Features/categories/categoriesSlice';
 import { RootState, AppDispatch } from '../Redux/store';
 import AjoutProduit from "../components/AjoutProduit"
 import ModifierProduit from "../components/ModifierProduit";
+import { Button } from '@/components/ui/button';
+import {
+    Table,
+    TableBody,
 
-type Produit = {
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table"
+
+type Produits = {
     id: number;
     nom: string;
     description: string;
     prix: number;
     dateCreation: string;
-    categorie_id: { nom: string } | null; // `categorie` peut être un objet ou `null`
+    categorie_id: number;
 };
-
 
 const Home = () => {
     const dispatch = useDispatch<AppDispatch>();
     const produits = useSelector((state: RootState) => state.produits.produits);
     const status = useSelector((state: RootState) => state.produits.status);
     const error = useSelector((state: RootState) => state.produits.error);
+    const categories = useSelector((state: RootState) => state.categories.categories);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedProduit, setSelectedProduit] = useState<Produit | null>(null);
+    const [isModalOpenAjout, setIsModalOpenAjout] = useState(false);
+    const [selectedProduit, setSelectedProduit] = useState<Produits | null>(null);
 
     const handleDelete = (id: number) => {
         dispatch(deleteProduit(id))
@@ -38,7 +50,11 @@ const Home = () => {
         dispatch(fetchProduits());
     };
 
-    const handleOpenModal = (produit: Produit) => {
+    useEffect(() => {
+        dispatch(fetchCategories());
+        dispatch(fetchProduits());
+    }, [dispatch]);
+    const handleOpenModal = (produit: Produits) => {
         setSelectedProduit(produit);
         setIsModalOpen(true);
     };
@@ -49,85 +65,80 @@ const Home = () => {
     };
 
 
-    useEffect(() => {
-        if (status === 'idle') {
-            dispatch(fetchProduits());
-        }
-    }, [status, dispatch]);
+    const handleOpenModalAjout = () => {
+        setIsModalOpenAjout(true);
+    };
+
+    const handleCloseModalAjout = () => {
+        setIsModalOpenAjout(false);
+    };
 
 
+    console.log(produits)
 
-    if (produits.length === 0) {
-        return (
-            <div className=' container mx-auto p-4 '>
-                <h1 className="text-2xl font-bold">Liste des Produits</h1>
-                <table className="table-auto w-full mt-4 border-collapse border border-gray-300">
-                    <thead>
-                        <tr className="bg-gray-100">
-                            <th className="border px-4 py-2">Nom</th>
-                            <th className="border px-4 py-2">Description</th>
-                            <th className="border px-4 py-2">Prix</th>
-                            <th className="border px-4 py-2">Catégorie</th>
-                            <th className="border px-4 py-2">Date de création</th>
-                            <th className="border px-4 py-2">Action</th>
-                        </tr>
-                    </thead>
-                </table>
-                <p className=' w-full text-center'>Aucun produit disponible</p>
-                <AjoutProduit />
-            </div>
-
-        );
-    }
 
 
     return (
         <div className="container mx-auto p-4">
-            <h1 className="text-2xl font-bold">Liste des Produits</h1>
-            {status === "loading" && <p>Chargement...</p>}
+
             {status === "failed" && <p className="text-red-500">Erreur : {error}</p>}
-            <table className="table-auto w-full mt-4 border-collapse border border-gray-300">
-                <thead>
-                    <tr className="bg-gray-100">
-                        <th className="border px-4 py-2">Nom</th>
-                        <th className="border px-4 py-2">Description</th>
-                        <th className="border px-4 py-2">Prix</th>
-                        <th className="border px-4 py-2">Catégorie</th>
-                        <th className="border px-4 py-2">Date de création</th>
-                        <th className="border px-4 py-2">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {produits.map((produit: Produit) => (
-                        <tr key={produit.id}>
-                            <td className="border px-4 py-2">{produit.nom}</td>
-                            <td className="border px-4 py-2">{produit.description}</td>
-                            <td className="border px-4 py-2">{produit.prix} €</td>
-                            <td className="border px-4 py-2">
-                                {produit.categorie_id ? produit.categorie_id.nom : 'Non assigné'}
-                            </td>
-                            <td className="border px-4 py-2">{produit.dateCreation}</td>
-                            <td className=" flex gap-5 border px-4 py-2">
-                                <button onClick={() => handleOpenModal(produit)} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                    Modifier
-                                </button>
-                                <button onClick={() => handleDelete(produit.id)} className='bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded'>
-                                    Supprimer
-                                </button>
 
-                            </td>
+            <Button onClick={handleOpenModalAjout}>Ajouter un produit</Button>
 
-                        </tr>
+            <Table>
 
-                    ))}
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>Nom</TableHead>
+                        <TableHead>Description</TableHead>
+                        <TableHead>Prix</TableHead>
+                        <TableHead>Catégorie</TableHead>
+                        <TableHead>Date de création</TableHead>
+                        <TableHead>Action</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {produits.length === 0 ? (
+                        <TableRow>
+                            <TableCell colSpan={6} className="text-center">Aucun produit disponible</TableCell>
+                        </TableRow>
+                    ) : (
+                        produits.map((produit: any) => (
+                            <TableRow key={produit.id}>
+                                <TableCell>{produit.nom}</TableCell>
+                                <TableCell>{produit.description}</TableCell>
+                                <TableCell>{produit.prix} €</TableCell>
+                                <TableCell>
+                                    {produit.categorie ? produit.categorie.nom : 'Non assigné'}
+                                </TableCell>
+                                <TableCell>{produit.dateCreation}</TableCell>
+                                <TableCell>
+                                    <div className="flex gap-2">
+                                        <Button onClick={() => handleOpenModal(produit)} variant="outline">
+                                            Modifier
+                                        </Button>
+                                        <Button onClick={() => handleDelete(produit.id)} variant="destructive">
+                                            Supprimer
+                                        </Button>
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        ))
+                    )}
+                </TableBody>
+            </Table>
+            {isModalOpenAjout && (
+                <AjoutProduit
+                    onClose={handleCloseModalAjout}
+                    isOpen={isModalOpenAjout}
+                />
+            )}
 
-                </tbody>
-            </table>
-            <AjoutProduit />
             {isModalOpen && selectedProduit && (
                 <ModifierProduit
                     produit={selectedProduit}
                     onClose={handleCloseModal}
+                    isOpen={isModalOpen}
                 />
             )}
         </div>
@@ -135,3 +146,4 @@ const Home = () => {
 };
 
 export default Home;
+

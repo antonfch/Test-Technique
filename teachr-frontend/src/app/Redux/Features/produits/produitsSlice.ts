@@ -8,7 +8,7 @@ interface Produit {
   nom: string;
   description: string;
   prix: number;
-  categorie_id: { nom: string };
+  categorie_id: number;
   dateCreation: string;
 }
 
@@ -18,9 +18,10 @@ type UpdateProduitPayload = {
     nom: string;
     description: string;
     prix: number;
+    categorie_id: number;
   };
 };
-// Action asynchrone pour récupérer les produits
+
 export const fetchProduits = createAsyncThunk(
   "produits/fetchProduits",
   async () => {
@@ -38,9 +39,9 @@ export const deleteProduit = createAsyncThunk(
 );
 
 export const updateProduit = createAsyncThunk<
-  Produit, // Ce que l'action retourne
-  UpdateProduitPayload, // Ce que l'action accepte
-  { rejectValue: { message: string } } // Ce que l'action peut rejeter
+  Produit,
+  UpdateProduitPayload,
+  { rejectValue: { message: string } }
 >(
   "produits/updateProduit",
   async ({ id, updatedProduit }, { rejectWithValue }) => {
@@ -59,13 +60,11 @@ export const updateProduit = createAsyncThunk<
         }
       }
 
-      // Retournez un message d'erreur générique si ce n'est pas une erreur Axios
       return rejectWithValue({ message: "Erreur inconnue" });
     }
   }
 );
 
-// Action asynchrone pour ajouter un produit
 export const addProduit = createAsyncThunk(
   "produits/addProduit",
   async (produit: Partial<Produit>) => {

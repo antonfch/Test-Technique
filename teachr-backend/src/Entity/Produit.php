@@ -12,22 +12,22 @@ class Produit
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['produit_list', 'categorie_detail'])]
+    #[Groups(['produit_list'])]
     private ?int $id = null;
 
-    #[Groups(['produit_list', 'categorie_detail'])]
+    #[Groups(['produit_list'])]
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
-    #[Groups(['produit_list', 'categorie_detail'])]
+    #[Groups(['produit_list'])]
     #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
 
-    #[Groups(['produit_list', 'categorie_detail'])]
+    #[Groups(['produit_list'])]
     #[ORM\Column]
     private ?float $prix = null;
     
-    #[Groups(['produit_list', 'categorie_detail'])]
+    #[Groups(['produit_list'])]
     #[ORM\ManyToOne(inversedBy: 'CategorieProduits')]
     private ?Categorie $categorie = null;
 

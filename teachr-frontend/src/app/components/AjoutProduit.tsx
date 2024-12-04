@@ -5,9 +5,27 @@ import { useSelector, useDispatch } from 'react-redux';
 import { addProduit, fetchProduits } from '../Redux/Features/produits/produitsSlice';
 import { fetchCategories } from '../Redux/Features/categories/categoriesSlice';
 import { RootState, AppDispatch } from '../Redux/store';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
+interface EditProduitModalProps {
+
+    isOpen: boolean;
+    onClose: () => void;
+}
 
 
-const AjoutProduit = () => {
+const AjoutProduit = ({ isOpen, onClose }: EditProduitModalProps) => {
     const dispatch = useDispatch<AppDispatch>();
 
     const status = useSelector((state: RootState) => state.produits.status);
@@ -18,8 +36,7 @@ const AjoutProduit = () => {
     const [categorie, setCategorie] = React.useState(0);
     const [description, setDescription] = React.useState('');
 
-    const handleAddProduit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+    const handleAddProduit = () => {
         const prixAsNumber = typeof prix === 'string' ? parseFloat(prix) : prix;
 
         if (isNaN(prixAsNumber)) {
@@ -31,8 +48,9 @@ const AjoutProduit = () => {
             nom,
             description,
             prix: prixAsNumber,
-            categorie: categorie,
+            categorie_id: categorie,
         };
+        console.log("Produit envoyé :", newProduit);
         dispatch(addProduit(newProduit))
             .unwrap()
             .then(() => {
@@ -54,71 +72,79 @@ const AjoutProduit = () => {
 
 
     return (
-        <div className="container mx-auto ">
 
+        <Dialog open={isOpen} onOpenChange={onClose}>
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle>Modifier le produit</DialogTitle>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="nom" className="text-right">
+                            Nom
+                        </Label>
+                        <Input
+                            id="nom"
+                            value={nom}
+                            onChange={(e) => setNom(e.target.value)}
+                            className="col-span-3"
+                        />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="description" className="text-right">
+                            Description
+                        </Label>
+                        <Textarea
+                            id="description"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            className="col-span-3"
+                        />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="prix" className="text-right">
+                            Prix
+                        </Label>
+                        <Input
+                            id="prix"
+                            type="number"
+                            value={prix}
+                            onChange={(e) => setPrix(parseFloat(e.target.value))}
+                            className="col-span-3"
+                        />
+                    </div>
+                    <div className="flex flex-col mb-4">
+                        <label className="mb-2">Categorie :</label>
 
-            {status === "loading" && <p>Chargement...</p>}
+                        <select
+                            value={categorie}
+                            onChange={(e) => setCategorie(parseInt(e.target.value, 10))}
+                            className="border px-2 py-1"
+                        >
+                            <option value="">-- Choisir une categorie --</option>
+                            {categories.length === 0 ? (
+                                <option disabled>Aucune catégorie disponible</option>
+                            ) : (
+                                categories.map((categorie) => (
+                                    <option key={categorie.id} value={categorie.id}>
+                                        {categorie.nom}
+                                    </option>
+                                ))
+                            )}
+                        </select>
 
-            <form onSubmit={handleAddProduit} className="mt-6">
-                <div className="flex flex-col mb-4">
-                    <label className="mb-2">Categorie :</label>
-
-                    <select
-                        value={categorie}
-                        onChange={(e) => setCategorie(parseInt(e.target.value, 10))}
-                        className="border px-2 py-1"
-                    >
-                        <option value="">-- Choisir une categorie --</option>
-                        {categories.length === 0 ? (
-                            <option disabled>Aucune catégorie disponible</option>
-                        ) : (
-                            categories.map((categorie) => (
-                                <option key={categorie.id} value={categorie.id}>
-                                    {categorie.nom}
-                                </option>
-                            ))
-                        )}
-                    </select>
-
+                    </div>
                 </div>
-                <div className="flex flex-col mb-4">
-                    <label className="mb-2">Nom :</label>
-                    <input
-                        type="text"
-                        value={nom}
-                        onChange={(e) => setNom(e.target.value)}
-                        className="border px-2 py-1"
-                        required
-                    />
-                </div>
-                <div className="flex flex-col mb-4">
-                    <label className="mb-2">Description :</label>
-                    <textarea
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        className="border px-2 py-1"
-                        required
-                    />
-                </div>
-                <div className="flex flex-col mb-4">
-                    <label className="mb-2">Prix :</label>
-                    <input
-                        type="number"
-                        value={prix}
-                        onChange={(e) => setPrix(e.target.value)}
-                        className="border px-2 py-1"
-                        required
-                    />
-                </div>
-
-                <button
-                    type="submit"
-                    className="bg-primary text-white px-4 py-2 rounded"
-                >
-                    Ajouter Produit
-                </button>
-            </form>
-        </div>
+                <DialogFooter>
+                    <Button variant="outline" onClick={onClose}>
+                        Annuler
+                    </Button>
+                    <Button onClick={handleAddProduit}>
+                        Sauvegarder
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     );
 };
 

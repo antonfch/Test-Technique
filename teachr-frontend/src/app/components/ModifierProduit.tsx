@@ -1,28 +1,49 @@
+'use client'
+
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { updateProduit } from '../Redux/Features/produits/produitsSlice';
-
+import type { AppDispatch } from "../Redux/store";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from '@/components/ui/dialog';
 
 interface Produit {
     id: number;
     nom: string;
     description: string;
     prix: number;
-    categorie_id: { nom: string };
+    categorie_id: number;
     dateCreation: string;
 }
-const EditProduitModal = ({ produit, onClose }: { produit: Produit, onClose: () => void }) => {
+
+interface EditProduitModalProps {
+    produit: Produit;
+    isOpen: boolean;
+    onClose: () => void;
+}
+
+const ModifierProduit = ({ produit, isOpen, onClose }: EditProduitModalProps) => {
     const [nom, setNom] = useState(produit.nom);
     const [description, setDescription] = useState(produit.description);
     const [prix, setPrix] = useState(produit.prix);
 
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
 
     const handleSave = () => {
         const updatedProduit = {
             nom,
             description,
             prix,
+            categorie_id: produit.categorie_id,
         };
 
         dispatch(updateProduit({ id: produit.id, updatedProduit }))
@@ -37,58 +58,58 @@ const EditProduitModal = ({ produit, onClose }: { produit: Produit, onClose: () 
     };
 
     return (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg shadow-lg p-6 w-96">
-                <h2 className="text-xl font-bold mb-4">Modifier le produit</h2>
-                <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Nom :
-                    </label>
-                    <input
-                        type="text"
-                        value={nom}
-                        onChange={(e) => setNom(e.target.value)}
-                        className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
-                    />
+        <Dialog open={isOpen} onOpenChange={onClose}>
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle>Modifier le produit</DialogTitle>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="nom" className="text-right">
+                            Nom
+                        </Label>
+                        <Input
+                            id="nom"
+                            value={nom}
+                            onChange={(e) => setNom(e.target.value)}
+                            className="col-span-3"
+                        />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="description" className="text-right">
+                            Description
+                        </Label>
+                        <Textarea
+                            id="description"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            className="col-span-3"
+                        />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="prix" className="text-right">
+                            Prix
+                        </Label>
+                        <Input
+                            id="prix"
+                            type="number"
+                            value={prix}
+                            onChange={(e) => setPrix(parseFloat(e.target.value))}
+                            className="col-span-3"
+                        />
+                    </div>
                 </div>
-                <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Description :
-                    </label>
-                    <textarea
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
-                    />
-                </div>
-                <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Prix :
-                    </label>
-                    <input
-                        type="number"
-                        value={prix}
-                        onChange={(e) => setPrix(parseInt(e.target.value, 10))}
-                        className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
-                    />
-                </div>
-                <div className="flex justify-end gap-4">
-                    <button
-                        onClick={onClose}
-                        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-300"
-                    >
+                <DialogFooter>
+                    <Button variant="outline" onClick={onClose}>
                         Annuler
-                    </button>
-                    <button
-                        onClick={handleSave}
-                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300"
-                    >
+                    </Button>
+                    <Button onClick={handleSave}>
                         Sauvegarder
-                    </button>
-                </div>
-            </div>
-        </div>
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     );
 };
 
-export default EditProduitModal;
+export default ModifierProduit;
