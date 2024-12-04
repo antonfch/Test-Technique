@@ -24,6 +24,17 @@ export const addCategorie = createAsyncThunk(
   }
 );
 
+export const updateCategorie = createAsyncThunk(
+  "produits/updateCategorie",
+  async ({ id, updatedCategorie }: any) => {
+    const response = await axios.put(
+      `http://127.0.0.1:8000/categories/${id}`,
+      updatedCategorie
+    );
+    return response.data;
+  }
+);
+
 const produitsSlice = createSlice({
   name: "produits",
   initialState: {

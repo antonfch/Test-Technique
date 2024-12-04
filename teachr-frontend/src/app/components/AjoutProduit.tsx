@@ -76,7 +76,7 @@ const AjoutProduit = ({ isOpen, onClose }: EditProduitModalProps) => {
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Modifier le produit</DialogTitle>
+                    <DialogTitle>Ajouter un produit</DialogTitle>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                     <div className="grid grid-cols-4 items-center gap-4">
@@ -113,25 +113,30 @@ const AjoutProduit = ({ isOpen, onClose }: EditProduitModalProps) => {
                             className="col-span-3"
                         />
                     </div>
-                    <div className="flex flex-col mb-4">
-                        <label className="mb-2">Categorie :</label>
-
-                        <select
-                            value={categorie}
-                            onChange={(e) => setCategorie(parseInt(e.target.value, 10))}
-                            className="border px-2 py-1"
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="categorie" className="text-right">Categorie</Label>
+                        <Select
+                            value={categorie.toString()}
+                            onValueChange={(value) => setCategorie(parseInt(value, 10))}
                         >
-                            <option value="">-- Choisir une categorie --</option>
-                            {categories.length === 0 ? (
-                                <option disabled>Aucune catégorie disponible</option>
-                            ) : (
-                                categories.map((categorie) => (
-                                    <option key={categorie.id} value={categorie.id}>
-                                        {categorie.nom}
-                                    </option>
-                                ))
-                            )}
-                        </select>
+                            <SelectTrigger className="col-span-3">
+                                <SelectValue placeholder="-- Choisir une catégorie --" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {categories.length === 0 ? (
+                                    <SelectItem value="" disabled>
+                                        Aucune catégorie disponible
+                                    </SelectItem>
+                                ) : (
+                                    categories.map((cat) => (
+                                        <SelectItem key={cat.id} value={cat.id.toString()}>
+                                            {cat.nom}
+                                        </SelectItem>
+                                    ))
+                                )}
+                            </SelectContent>
+
+                        </Select>
 
                     </div>
                 </div>

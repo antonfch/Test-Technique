@@ -160,6 +160,7 @@ class ProduitController extends AbstractController
         $produit->setNom($data['nom'] ?? null);
         $produit->setDescription($data['description'] ?? null);
         $produit->setPrix($data['prix'] ?? null);
+        $produit->setCategorie($data['categorie'] ?? null);
 
         $errors = $validator->validate($produit);
         if (count($errors) > 0) {
@@ -182,44 +183,57 @@ class ProduitController extends AbstractController
         EntityManagerInterface $entityManager,
         ValidatorInterface $validator
     ): JsonResponse {
-    $produit = $entityManager->getRepository(Produit::class)->find($id);
-
-    if (!$produit) {
-        return $this->json(['error' => 'Produit non trouvé'], 404);
-    }
-
-    $data = json_decode($request->getContent(), true);
-
-    if (!$data) {
-        return $this->json(['error' => 'Données invalides'], 400);
-    }
-
-    // Mise à jour partielle des données
-    if (isset($data['nom'])) {
-        $produit->setNom($data['nom']);
-    }
-
-    if (isset($data['description'])) {
-        $produit->setDescription($data['description']);
-    }
-
-    if (isset($data['prix'])) {
-        $produit->setPrix($data['prix']);
-    }
-
-    $errors = $validator->validate($produit);
-    if (count($errors) > 0) {
-        $errorMessages = [];
-        foreach ($errors as $error) {
-            $errorMessages[] = $error->getMessage();
+        $produit = $entityManager->getRepository(Produit::class)->find($id);
+    
+        if (!$produit) {
+            return $this->json(['error' => 'Produit non trouvé'], 404);
         }
-        return $this->json(['errors' => $errorMessages], 400);
+    
+        $data = json_decode($request->getContent(), true);
+    
+        if (!$data) {
+            return $this->json(['error' => 'Données invalides'], 400);
+        }
+    
+        // Mise à jour des champs simples
+        if (isset($data['nom'])) {
+            $produit->setNom($data['nom']);
+        }
+    
+        if (isset($data['description'])) {
+            $produit->setDescription($data['description']);
+        }
+    
+        if (isset($data['prix'])) {
+            $produit->setPrix($data['prix']);
+        }
+    
+        // Mise à jour de la catégorie (relation)
+        if (isset($data['categorie_id'])) {
+            $categorie = $entityManager->getRepository(Categorie::class)->find($data['categorie_id']);
+            if (!$categorie) {
+                return $this->json(['error' => 'Catégorie non trouvée'], 404);
+            }
+            $produit->setCategorie($categorie);
+        }
+    
+        // Validation de l'entité
+        $errors = $validator->validate($produit);
+        if (count($errors) > 0) {
+            $errorMessages = [];
+            foreach ($errors as $error) {
+                $errorMessages[] = $error->getMessage();
+            }
+            return $this->json(['errors' => $errorMessages], 400);
+        }
+    
+        // Sauvegarde des modifications
+        $entityManager->flush();
+    
+        return $this->json(['message' => 'Produit mis à jour partiellement avec succès']);
     }
 
-    $entityManager->flush();
 
-    return $this->json(['message' => 'Produit mis à jour partiellement avec succès']);
-    }
     #[Route('/produits/{id}', name: 'delete_produit', methods: ['DELETE'])]
     public function deleteProduit(int $id, EntityManagerInterface $entityManager): JsonResponse
     {

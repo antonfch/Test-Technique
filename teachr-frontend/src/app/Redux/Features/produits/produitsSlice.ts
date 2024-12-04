@@ -46,10 +46,11 @@ export const updateProduit = createAsyncThunk<
   "produits/updateProduit",
   async ({ id, updatedProduit }, { rejectWithValue }) => {
     try {
-      const response = await axios.put(
+      const response = await axios.patch(
         `http://127.0.0.1:8000/produits/${id}`,
         updatedProduit
       );
+      console.log("Réponse API :", response.data);
       return response.data;
     } catch (error: unknown) {
       // Vérifiez si l'erreur est une instance de AxiosError
@@ -131,13 +132,10 @@ const produitsSlice = createSlice({
       .addCase(updateProduit.fulfilled, (state, action) => {
         state.status = "succeeded";
         const index = state.produits.findIndex(
-          (p) => p.id === action.meta.arg.id
+          (p) => p.id === action.payload.id
         );
         if (index !== -1) {
-          state.produits[index] = {
-            ...state.produits[index],
-            ...action.meta.arg.updatedProduit,
-          };
+          state.produits[index] = action.payload; // Utilise les données retournées par l'API
         }
       })
       .addCase(updateProduit.rejected, (state, action) => {

@@ -32,7 +32,7 @@ const Home = () => {
     const produits = useSelector((state: RootState) => state.produits.produits);
     const status = useSelector((state: RootState) => state.produits.status);
     const error = useSelector((state: RootState) => state.produits.error);
-    const categories = useSelector((state: RootState) => state.categories.categories);
+
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isModalOpenAjout, setIsModalOpenAjout] = useState(false);
@@ -72,11 +72,6 @@ const Home = () => {
     const handleCloseModalAjout = () => {
         setIsModalOpenAjout(false);
     };
-
-
-    console.log(produits)
-
-
 
     return (
         <div className="container mx-auto p-4">

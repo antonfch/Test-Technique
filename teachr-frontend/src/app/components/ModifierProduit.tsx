@@ -1,9 +1,9 @@
 'use client'
 
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { updateProduit } from '../Redux/Features/produits/produitsSlice';
-import type { AppDispatch } from "../Redux/store";
+import { useSelector, useDispatch } from 'react-redux';
+import { updateProduit, fetchProduits } from '../Redux/Features/produits/produitsSlice';
+import { RootState, AppDispatch } from '../Redux/store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -15,7 +15,7 @@ import {
     DialogTitle,
     DialogFooter,
 } from '@/components/ui/dialog';
-
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 interface Produit {
     id: number;
     nom: string;
@@ -35,7 +35,8 @@ const ModifierProduit = ({ produit, isOpen, onClose }: EditProduitModalProps) =>
     const [nom, setNom] = useState(produit.nom);
     const [description, setDescription] = useState(produit.description);
     const [prix, setPrix] = useState(produit.prix);
-
+    const [categorie, setCategorie] = useState(produit.categorie_id);
+    const categories = useSelector((state: RootState) => state.categories.categories);
     const dispatch = useDispatch<AppDispatch>();
 
     const handleSave = () => {
@@ -43,18 +44,20 @@ const ModifierProduit = ({ produit, isOpen, onClose }: EditProduitModalProps) =>
             nom,
             description,
             prix,
-            categorie_id: produit.categorie_id,
+            categorie_id: categorie,
         };
+
+        console.log("Produit mis à jour :", updatedProduit);
 
         dispatch(updateProduit({ id: produit.id, updatedProduit }))
             .unwrap()
             .then(() => {
-                alert('Produit modifié avec succès');
                 onClose(); // Ferme la modale
             })
             .catch((err: { message: string }) => {
                 console.error('Erreur lors de la modification :', err.message);
             });
+        dispatch(fetchProduits());
     };
 
     return (
@@ -97,6 +100,36 @@ const ModifierProduit = ({ produit, isOpen, onClose }: EditProduitModalProps) =>
                             onChange={(e) => setPrix(parseFloat(e.target.value))}
                             className="col-span-3"
                         />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="categorie" className="text-right">Categorie</Label>
+                        <Select
+                            value={categorie ? categorie.toString() : ""}
+
+                            onValueChange={(value) => {
+                                console.log("Nouvelle catégorie sélectionnée :", value);
+                                setCategorie(parseInt(value, 10));
+                            }}
+                        >
+                            <SelectTrigger className="col-span-3">
+                                <SelectValue placeholder="-- Choisir une catégorie --" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {categories.length === 0 ? (
+                                    <SelectItem value="" disabled>
+                                        Aucune catégorie disponible
+                                    </SelectItem>
+                                ) : (
+                                    categories.map((cat) => (
+                                        <SelectItem key={cat.id} value={cat.id.toString()}>
+                                            {cat.nom}
+                                        </SelectItem>
+                                    ))
+                                )}
+                            </SelectContent>
+
+                        </Select>
+
                     </div>
                 </div>
                 <DialogFooter>

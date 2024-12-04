@@ -1,10 +1,18 @@
 'use client';
-import Page from "./pages/index"
+import Link from 'next/link'
 
 export default function Home() {
   return (
-    <div >
-      <Page />
-    </div>
+    <ul>
+      <li>
+        <Link href="/">Home</Link>
+      </li>
+      <li>
+        <Link href="/produits">Produits</Link>
+      </li>
+      <li>
+        <Link href="/categories">Categories</Link>
+      </li>
+    </ul>
   );
 }
