@@ -1,12 +1,11 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { fetchCategories, addCategorie } from '../Redux/Features/categories/categoriesSlice';
-import { RootState, AppDispatch } from '../Redux/store';
+import { AppDispatch } from '../Redux/store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import {
     Dialog,
@@ -15,8 +14,7 @@ import {
     DialogTitle,
     DialogFooter,
 } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-
+import { toast } from "sonner"
 interface EditProduitModalProps {
 
     isOpen: boolean;
@@ -27,12 +25,20 @@ interface EditProduitModalProps {
 const AjoutProduit = ({ isOpen, onClose }: EditProduitModalProps) => {
     const dispatch = useDispatch<AppDispatch>();
 
-    const status = useSelector((state: RootState) => state.produits.status);
-    const categories = useSelector((state: RootState) => state.categories.categories);
-
     const [nom, setNom] = React.useState('');
+    const [errors, setErrors] = useState<{ nom?: string; prix?: string }>({});
 
     const handleAddCategorie = () => {
+        const validationErrors: { nom?: string; prix?: string } = {};
+
+        // Validation des champs
+        if (!nom) validationErrors.nom = 'Le nom est obligatoire.';
+
+        // Si des erreurs, on les affiche et on bloque l'envoi
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            return;
+        }
         const newProduit = {
             nom,
         };
@@ -41,9 +47,17 @@ const AjoutProduit = ({ isOpen, onClose }: EditProduitModalProps) => {
             .unwrap()
             .then(() => {
                 setNom("");
+
+                toast("Catégorie ajouté avec succès.", {
+                    duration: 5000,
+                });
             })
-            .catch((err) => console.error("Erreur lors de l'ajout :", err));
+            .catch((err) => {
+                console.error("Erreur lors de l'ajout :", err);
+                toast("Erreur lors de l'ajout de la catégorie.");
+            });
         dispatch(fetchCategories());
+        onClose()
     };
 
 
@@ -72,6 +86,7 @@ const AjoutProduit = ({ isOpen, onClose }: EditProduitModalProps) => {
                             onChange={(e) => setNom(e.target.value)}
                             className="col-span-3"
                         />
+                        {errors.nom && <p className="col-span-4 text-red-500 text-sm">{errors.nom}</p>}
                     </div>
 
 
@@ -81,7 +96,7 @@ const AjoutProduit = ({ isOpen, onClose }: EditProduitModalProps) => {
                     <Button variant="outline" onClick={onClose}>
                         Annuler
                     </Button>
-                    <Button onClick={handleAddCategorie}>
+                    <Button className='bg-[#0254A3]' onClick={handleAddCategorie}>
                         Sauvegarder
                     </Button>
                 </DialogFooter>

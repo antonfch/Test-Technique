@@ -35,6 +35,14 @@ export const updateCategorie = createAsyncThunk(
   }
 );
 
+export const deleteCategorie = createAsyncThunk(
+  "produits/deleteCategorie",
+  async (id: number) => {
+    await axios.delete(`http://127.0.0.1:8000/categories/${id}`);
+    return id;
+  }
+);
+
 const produitsSlice = createSlice({
   name: "produits",
   initialState: {

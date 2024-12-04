@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { addProduit, fetchProduits } from '../Redux/Features/produits/produitsSlice';
 import { fetchCategories } from '../Redux/Features/categories/categoriesSlice';
@@ -17,6 +17,7 @@ import {
     DialogFooter,
 } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { toast } from "sonner"
 
 interface EditProduitModalProps {
 
@@ -28,15 +29,28 @@ interface EditProduitModalProps {
 const AjoutProduit = ({ isOpen, onClose }: EditProduitModalProps) => {
     const dispatch = useDispatch<AppDispatch>();
 
-    const status = useSelector((state: RootState) => state.produits.status);
+
     const categories = useSelector((state: RootState) => state.categories.categories);
 
     const [nom, setNom] = React.useState('');
     const [prix, setPrix] = React.useState<number | string>(0);
     const [categorie, setCategorie] = React.useState(0);
     const [description, setDescription] = React.useState('');
+    const [errors, setErrors] = useState<{ nom?: string; prix?: string }>({});
 
     const handleAddProduit = () => {
+
+        const validationErrors: { nom?: string; prix?: string } = {};
+
+        // Validation des champs
+        if (!nom) validationErrors.nom = 'Le nom est obligatoire.';
+        if (!prix || isNaN(Number(prix))) validationErrors.prix = 'Le prix est obligatoire et doit être un nombre.';
+
+        // Si des erreurs, on les affiche et on bloque l'envoi
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            return;
+        }
         const prixAsNumber = typeof prix === 'string' ? parseFloat(prix) : prix;
 
         if (isNaN(prixAsNumber)) {
@@ -50,7 +64,7 @@ const AjoutProduit = ({ isOpen, onClose }: EditProduitModalProps) => {
             prix: prixAsNumber,
             categorie_id: categorie,
         };
-        console.log("Produit envoyé :", newProduit);
+
         dispatch(addProduit(newProduit))
             .unwrap()
             .then(() => {
@@ -58,10 +72,22 @@ const AjoutProduit = ({ isOpen, onClose }: EditProduitModalProps) => {
                 setDescription("");
                 setPrix(0);;
                 setCategorie(0);
+
+                toast("Produit ajouté avec succès.", {
+                    duration: 5000,
+                });
+                onClose()
             })
-            .catch((err) => console.error("Erreur lors de l'ajout :", err));
+            .catch((err) => {
+                console.error("Erreur lors de l'ajout :", err);
+                toast("Erreur lors de l'ajout du produit.");
+            });
         dispatch(fetchProduits());
+
+
     };
+
+
 
 
     useEffect(() => {
@@ -89,6 +115,7 @@ const AjoutProduit = ({ isOpen, onClose }: EditProduitModalProps) => {
                             onChange={(e) => setNom(e.target.value)}
                             className="col-span-3"
                         />
+                        {errors.nom && <p className="col-span-4 text-red-500 text-sm">{errors.nom}</p>}
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="description" className="text-right">
@@ -112,6 +139,7 @@ const AjoutProduit = ({ isOpen, onClose }: EditProduitModalProps) => {
                             onChange={(e) => setPrix(parseFloat(e.target.value))}
                             className="col-span-3"
                         />
+                        {errors.prix && <p className="col-span-4 text-red-500 text-sm">{errors.prix}</p>}
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="categorie" className="text-right">Categorie</Label>
@@ -144,7 +172,7 @@ const AjoutProduit = ({ isOpen, onClose }: EditProduitModalProps) => {
                     <Button variant="outline" onClick={onClose}>
                         Annuler
                     </Button>
-                    <Button onClick={handleAddProduit}>
+                    <Button className='bg-[#0254A3]' onClick={handleAddProduit}>
                         Sauvegarder
                     </Button>
                 </DialogFooter>

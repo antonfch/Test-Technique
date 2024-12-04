@@ -16,6 +16,7 @@ import {
     DialogFooter,
 } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { toast } from "sonner"
 interface Produit {
     id: number;
     nom: string;
@@ -52,10 +53,14 @@ const ModifierProduit = ({ produit, isOpen, onClose }: EditProduitModalProps) =>
         dispatch(updateProduit({ id: produit.id, updatedProduit }))
             .unwrap()
             .then(() => {
-                onClose(); // Ferme la modale
+                onClose();
+                toast("Produit modifié avec succès.", {
+                    duration: 5000,
+                });
             })
             .catch((err: { message: string }) => {
                 console.error('Erreur lors de la modification :', err.message);
+                toast("Erreur lors de la modification du produit.");
             });
         dispatch(fetchProduits());
     };
@@ -136,7 +141,7 @@ const ModifierProduit = ({ produit, isOpen, onClose }: EditProduitModalProps) =>
                     <Button variant="outline" onClick={onClose}>
                         Annuler
                     </Button>
-                    <Button onClick={handleSave}>
+                    <Button className='bg-[#0254A3]' onClick={handleSave}>
                         Sauvegarder
                     </Button>
                 </DialogFooter>

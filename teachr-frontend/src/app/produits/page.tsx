@@ -1,134 +1,263 @@
-'use client';
+'use client'
 
-import React, { useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { fetchProduits, deleteProduit } from '../Redux/Features/produits/produitsSlice';
-import { fetchCategories } from '../Redux/Features/categories/categoriesSlice';
-import { RootState, AppDispatch } from '../Redux/store';
+import React, { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useSelector, useDispatch } from 'react-redux'
+import { fetchProduits, deleteProduit } from '../Redux/Features/produits/produitsSlice'
+import { fetchCategories } from '../Redux/Features/categories/categoriesSlice'
+import { RootState, AppDispatch } from '../Redux/store'
 import AjoutProduit from "../components/AjoutProduit"
-import ModifierProduit from "../components/ModifierProduit";
-import { Button } from '@/components/ui/button';
+import ModifierProduit from "../components/ModifierProduit"
+import { Button } from '@/components/ui/button'
+import {
+    ColumnDef,
+    ColumnFiltersState,
+    SortingState,
+    VisibilityState,
+    flexRender,
+    getCoreRowModel,
+    getFilteredRowModel,
+    getPaginationRowModel,
+    getSortedRowModel,
+    useReactTable,
+} from "@tanstack/react-table"
 import {
     Table,
     TableBody,
-
     TableCell,
     TableHead,
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
+import { Input } from "@/components/ui/input"
+import {
+    DropdownMenu,
+    DropdownMenuCheckboxItem,
+    DropdownMenuContent,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { DataTablePagination } from '../../components/data-table-pagination'
+import { ChevronLeft } from "lucide-react"
 
-type Produits = {
-    id: number;
-    nom: string;
-    description: string;
-    prix: number;
-    dateCreation: string;
-    categorie_id: number;
-};
+type Produit = {
+    id: number
+    nom: string
+    description: string
+    prix: number
+    dateCreation: string
+    categorie: { nom: string } | null
+    categorie_id: number
+}
 
-const Home = () => {
-    const dispatch = useDispatch<AppDispatch>();
-    const produits = useSelector((state: RootState) => state.produits.produits);
-    const status = useSelector((state: RootState) => state.produits.status);
-    const error = useSelector((state: RootState) => state.produits.error);
+export default function ProductsPage() {
+    const router = useRouter()
+    const dispatch = useDispatch<AppDispatch>()
+    const produits = useSelector((state: RootState) => state.produits.produits)
+    const status = useSelector((state: RootState) => state.produits.status)
+    const error = useSelector((state: RootState) => state.produits.error)
 
+    const [sorting, setSorting] = useState<SortingState>([])
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+    const [rowSelection, setRowSelection] = useState({})
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isModalOpenAjout, setIsModalOpenAjout] = useState(false);
-    const [selectedProduit, setSelectedProduit] = useState<Produits | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [isModalOpenAjout, setIsModalOpenAjout] = useState(false)
+    const [selectedProduit, setSelectedProduit] = useState<Produit | null>(null)
+
+    useEffect(() => {
+        dispatch(fetchCategories())
+        dispatch(fetchProduits())
+    }, [dispatch])
 
     const handleDelete = (id: number) => {
         dispatch(deleteProduit(id))
             .unwrap()
             .then(() => {
-                console.log("Produit supprimé avec succès");
+                console.log("Produit supprimé avec succès")
+                dispatch(fetchProduits())
             })
             .catch((err) => {
-                console.error("Erreur lors de la suppression :", err);
-            });
-        dispatch(fetchProduits());
-    };
+                console.error("Erreur lors de la suppression :", err)
+            })
+    }
 
-    useEffect(() => {
-        dispatch(fetchCategories());
-        dispatch(fetchProduits());
-    }, [dispatch]);
-    const handleOpenModal = (produit: Produits) => {
-        setSelectedProduit(produit);
-        setIsModalOpen(true);
-    };
+    const handleOpenModal = (produit: Produit) => {
+        setSelectedProduit(produit)
+        setIsModalOpen(true)
+    }
 
     const handleCloseModal = () => {
-        setSelectedProduit(null);
-        setIsModalOpen(false);
-    };
-
+        setSelectedProduit(null)
+        setIsModalOpen(false)
+    }
 
     const handleOpenModalAjout = () => {
-        setIsModalOpenAjout(true);
-    };
+        setIsModalOpenAjout(true)
+    }
 
     const handleCloseModalAjout = () => {
-        setIsModalOpenAjout(false);
-    };
+        setIsModalOpenAjout(false)
+    }
+
+    const columns: ColumnDef<Produit>[] = [
+        {
+            accessorKey: "nom",
+            header: "Nom",
+            cell: ({ row }) => <div className="capitalize">{row.getValue("nom")}</div>,
+        },
+        {
+            accessorKey: "description",
+            header: "Description",
+            cell: ({ row }) => <div className="lowercase">{row.getValue("description")}</div>,
+        },
+        {
+            accessorKey: "prix",
+            header: "Prix",
+            cell: ({ row }) => <div className="text-right">{row.getValue("prix")}€</div>,
+        },
+        {
+            accessorKey: "categorie.nom",
+            header: "Catégorie",
+            cell: ({ row }) => <div>{row.original.categorie?.nom || 'Non assigné'}</div>,
+        },
+        {
+            accessorKey: "dateCreation",
+            header: "Date de création",
+        },
+        {
+            id: "actions",
+            enableHiding: false,
+            cell: ({ row }) => {
+                const produit = row.original
+                return (
+                    <div className="flex gap-2">
+                        <Button onClick={() => handleOpenModal(produit)} variant="outline" size="sm">
+                            Modifier
+                        </Button>
+                        <Button className='bg-[#FF724F]' onClick={() => handleDelete(produit.id)} variant="destructive" size="sm">
+                            Supprimer
+                        </Button>
+                    </div>
+                )
+            },
+        },
+    ]
+
+    const table = useReactTable({
+        data: produits,
+        columns,
+        onSortingChange: setSorting,
+        onColumnFiltersChange: setColumnFilters,
+        getCoreRowModel: getCoreRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
+        getSortedRowModel: getSortedRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
+        onColumnVisibilityChange: setColumnVisibility,
+        onRowSelectionChange: setRowSelection,
+        state: {
+            sorting,
+            columnFilters,
+            columnVisibility,
+            rowSelection,
+        },
+    })
 
     return (
-        <div className="container mx-auto p-4">
+        <div className="container mx-auto py-10">
+            <Button variant="outline" onClick={() => router.push("/categories")}><ChevronLeft /> Voir les catégories</Button>
+            <div className="flex items-center justify-between py-4">
+                <Input
+                    placeholder="Filtrer par nom..."
+                    value={(table.getColumn("nom")?.getFilterValue() as string) ?? ""}
+                    onChange={(event) =>
+                        table.getColumn("nom")?.setFilterValue(event.target.value)
+                    }
+                    className="max-w-sm"
+                />
+                <div className="flex items-center gap-2">
+                    <Button className='bg-[#0254A3]' onClick={handleOpenModalAjout}>Ajouter un produit</Button>
 
-            {status === "failed" && <p className="text-red-500">Erreur : {error}</p>}
-
-            <Button onClick={handleOpenModalAjout}>Ajouter un produit</Button>
-
-            <Table>
-
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Nom</TableHead>
-                        <TableHead>Description</TableHead>
-                        <TableHead>Prix</TableHead>
-                        <TableHead>Catégorie</TableHead>
-                        <TableHead>Date de création</TableHead>
-                        <TableHead>Action</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {produits.length === 0 ? (
-                        <TableRow>
-                            <TableCell colSpan={6} className="text-center">Aucun produit disponible</TableCell>
-                        </TableRow>
-                    ) : (
-                        produits.map((produit: any) => (
-                            <TableRow key={produit.id}>
-                                <TableCell>{produit.nom}</TableCell>
-                                <TableCell>{produit.description}</TableCell>
-                                <TableCell>{produit.prix} €</TableCell>
-                                <TableCell>
-                                    {produit.categorie ? produit.categorie.nom : 'Non assigné'}
-                                </TableCell>
-                                <TableCell>{produit.dateCreation}</TableCell>
-                                <TableCell>
-                                    <div className="flex gap-2">
-                                        <Button onClick={() => handleOpenModal(produit)} variant="outline">
-                                            Modifier
-                                        </Button>
-                                        <Button onClick={() => handleDelete(produit.id)} variant="destructive">
-                                            Supprimer
-                                        </Button>
-                                    </div>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline">Colonnes</Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            {table
+                                .getAllColumns()
+                                .filter((column) => column.getCanHide())
+                                .map((column) => {
+                                    return (
+                                        <DropdownMenuCheckboxItem
+                                            key={column.id}
+                                            className="capitalize"
+                                            checked={column.getIsVisible()}
+                                            onCheckedChange={(value) =>
+                                                column.toggleVisibility(!!value)
+                                            }
+                                        >
+                                            {column.id}
+                                        </DropdownMenuCheckboxItem>
+                                    )
+                                })}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+            </div>
+            <div className="rounded-md border">
+                <Table>
+                    <TableHeader>
+                        {table.getHeaderGroups().map((headerGroup) => (
+                            <TableRow key={headerGroup.id}>
+                                {headerGroup.headers.map((header) => {
+                                    return (
+                                        <TableHead key={header.id}>
+                                            {header.isPlaceholder
+                                                ? null
+                                                : flexRender(
+                                                    header.column.columnDef.header,
+                                                    header.getContext()
+                                                )}
+                                        </TableHead>
+                                    )
+                                })}
+                            </TableRow>
+                        ))}
+                    </TableHeader>
+                    <TableBody>
+                        {table.getRowModel().rows?.length ? (
+                            table.getRowModel().rows.map((row) => (
+                                <TableRow
+                                    key={row.id}
+                                    data-state={row.getIsSelected() && "selected"}
+                                >
+                                    {row.getVisibleCells().map((cell) => (
+                                        <TableCell key={cell.id}>
+                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                        </TableCell>
+                                    ))}
+                                </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={columns.length} className="h-24 text-center">
+                                    Aucun résultat.
                                 </TableCell>
                             </TableRow>
-                        ))
-                    )}
-                </TableBody>
-            </Table>
+                        )}
+                    </TableBody>
+                </Table>
+            </div>
+            <div className="py-4">
+                <DataTablePagination table={table} />
+            </div>
+            {status === "failed" && <p className="text-red-500 mt-4">Erreur : {error}</p>}
             {isModalOpenAjout && (
                 <AjoutProduit
                     onClose={handleCloseModalAjout}
                     isOpen={isModalOpenAjout}
                 />
             )}
-
             {isModalOpen && selectedProduit && (
                 <ModifierProduit
                     produit={selectedProduit}
@@ -137,8 +266,6 @@ const Home = () => {
                 />
             )}
         </div>
-    );
-};
-
-export default Home;
+    )
+}
 

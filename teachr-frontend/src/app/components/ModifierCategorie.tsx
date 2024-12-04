@@ -14,6 +14,7 @@ import {
     DialogTitle,
     DialogFooter,
 } from '@/components/ui/dialog';
+import { toast } from "sonner"
 
 interface Categorie {
     id: number;
@@ -40,11 +41,14 @@ const ModifierProduit = ({ categorie, isOpen, onClose }: EditProduitModalProps) 
         dispatch(updateCategorie({ id: categorie.id, updatedCategorie }))
             .unwrap()
             .then(() => {
-                alert('Produit modifié avec succès');
-                onClose(); // Ferme la modale
+                onClose();
+                toast("Catégorie modifié avec succès.", {
+                    duration: 5000,
+                });
             })
             .catch((err: { message: string }) => {
                 console.error('Erreur lors de la modification :', err.message);
+                toast("Erreur lors de la modification de la catégorie.");
             });
         dispatch(fetchCategories());
     };
@@ -72,7 +76,7 @@ const ModifierProduit = ({ categorie, isOpen, onClose }: EditProduitModalProps) 
                     <Button variant="outline" onClick={onClose}>
                         Annuler
                     </Button>
-                    <Button onClick={handleSave}>
+                    <Button className='bg-[#0254A3]' onClick={handleSave}>
                         Sauvegarder
                     </Button>
                 </DialogFooter>
