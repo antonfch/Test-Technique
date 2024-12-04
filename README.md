@@ -1,5 +1,33 @@
 # Fullstack Application: Symfony Backend & Next.js Frontend
 
+## Why These Technologies?
+
+### Next.js
+
+Next.js was chosen as the frontend framework for its many advantages, including:
+
+- **Server-side Rendering (SSR)** and **Static Site Generation (SSG)** for improved performance and SEO.
+- Built-in support for API routes, making it easier to handle frontend-backend interactions.
+- Optimized development and deployment experience with Vercel.
+
+### Shadcn
+
+Shadcn was used for building UI components because of:
+
+- Pre-built, accessible, and customizable components.
+- Modern design patterns that integrate seamlessly with Tailwind CSS.
+- Flexibility to extend components to fit specific project needs.
+
+### TypeScript
+
+TypeScript was chosen for its advantages, such as:
+
+- **Static typing**, which helps prevent runtime errors and improves code quality.
+- Enhanced developer experience with better autocompletion and tooling support.
+- Scalability for larger codebases.
+
+---
+
 This repository contains a fullstack application with the following structure:
 
 - `backend/`: Symfony backend with a MySQL database using PHPMyAdmin (via XAMPP).
