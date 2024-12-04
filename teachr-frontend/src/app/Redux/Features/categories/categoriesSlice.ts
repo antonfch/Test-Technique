@@ -3,42 +3,44 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 // Action asynchrone pour récupérer les produits
+// Action asynchrone pour récupérer les catégories
 export const fetchCategories = createAsyncThunk(
-  "produits/fetchCategories",
+  "categories/fetchCategories",
   async () => {
-    const response = await axios.get(`http://127.0.0.1:8000/categories`);
+    const response = await axios.get(`${API_URL}/categories`);
     return response.data;
   }
 );
 
-// Action asynchrone pour ajouter un produit
+// Action asynchrone pour ajouter une catégorie
 export const addCategorie = createAsyncThunk(
-  "produits/addCategorie",
+  "categories/addCategorie",
   async (categorie: any) => {
-    const response = await axios.post(
-      `http://127.0.0.1:8000/categories`,
-      categorie
-    );
+    const response = await axios.post(`${API_URL}/categories`, categorie);
     return response.data;
   }
 );
 
+// Action asynchrone pour mettre à jour une catégorie
 export const updateCategorie = createAsyncThunk(
-  "produits/updateCategorie",
+  "categories/updateCategorie",
   async ({ id, updatedCategorie }: any) => {
     const response = await axios.put(
-      `http://127.0.0.1:8000/categories/${id}`,
+      `${API_URL}/categories/${id}`,
       updatedCategorie
     );
     return response.data;
   }
 );
 
+// Action asynchrone pour supprimer une catégorie
 export const deleteCategorie = createAsyncThunk(
-  "produits/deleteCategorie",
+  "categories/deleteCategorie",
   async (id: number) => {
-    await axios.delete(`http://127.0.0.1:8000/categories/${id}`);
+    await axios.delete(`${API_URL}/categories/${id}`);
     return id;
   }
 );

@@ -22,10 +22,12 @@ type UpdateProduitPayload = {
   };
 };
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export const fetchProduits = createAsyncThunk(
   "produits/fetchProduits",
   async () => {
-    const response = await axios.get(`http://127.0.0.1:8000/produits`);
+    const response = await axios.get(`${API_URL}/produits`);
     return response.data;
   }
 );
@@ -33,7 +35,7 @@ export const fetchProduits = createAsyncThunk(
 export const deleteProduit = createAsyncThunk(
   "produits/deleteProduit",
   async (id: number) => {
-    await axios.delete(`http://127.0.0.1:8000/produits/${id}`);
+    await axios.delete(`${API_URL}/produits/${id}`);
     return id;
   }
 );
@@ -47,7 +49,7 @@ export const updateProduit = createAsyncThunk<
   async ({ id, updatedProduit }, { rejectWithValue }) => {
     try {
       const response = await axios.patch(
-        `http://127.0.0.1:8000/produits/${id}`,
+        `${API_URL}/produits/${id}`,
         updatedProduit
       );
       console.log("Réponse API :", response.data);
@@ -69,10 +71,7 @@ export const updateProduit = createAsyncThunk<
 export const addProduit = createAsyncThunk(
   "produits/addProduit",
   async (produit: Partial<Produit>) => {
-    const response = await axios.post(
-      `http://127.0.0.1:8000/produits`,
-      produit
-    );
+    const response = await axios.post(`${API_URL}/produits`, produit);
     return response.data;
   }
 );
