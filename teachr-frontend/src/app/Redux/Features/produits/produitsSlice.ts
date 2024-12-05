@@ -55,9 +55,7 @@ export const updateProduit = createAsyncThunk<
       console.log("Réponse API :", response.data);
       return response.data;
     } catch (error: unknown) {
-      // Vérifiez si l'erreur est une instance de AxiosError
       if (axios.isAxiosError(error)) {
-        // Vérifiez si une réponse est disponible
         if (error.response && error.response.data) {
           return rejectWithValue(error.response.data);
         }
@@ -134,7 +132,7 @@ const produitsSlice = createSlice({
           (p) => p.id === action.payload.id
         );
         if (index !== -1) {
-          state.produits[index] = action.payload; // Utilise les données retournées par l'API
+          state.produits[index] = action.payload;
         }
       })
       .addCase(updateProduit.rejected, (state, action) => {

@@ -6,7 +6,7 @@ import { Toaster } from "sonner";
 
 const nunito = Nunito({
   subsets: ["latin"],
-  weight: ["700"], // Sélectionnez les poids nécessaires
+  weight: ["700"],
 });
 
 export const metadata: Metadata = {

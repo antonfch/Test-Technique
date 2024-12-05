@@ -45,7 +45,7 @@ class CategorieController extends AbstractController
     #[Route('/categories/{id}/produits', name: 'get_categorie_produits', methods: ['GET'])]
     public function getCategorieProduits(int $id, EntityManagerInterface $entityManager): JsonResponse
     {
-        // Récupérer la catégorie par son ID
+
         $categorie = $entityManager->getRepository(Categorie::class)->find($id);
 
         if (!$categorie) {
@@ -54,7 +54,7 @@ class CategorieController extends AbstractController
 
         $produits = $categorie->getCategorieProduits();
         if ($produits instanceof Collection && $produits->isEmpty()) {
-            $entityManager->initializeObject($produits); // Force Doctrine à charger les données
+            $entityManager->initializeObject($produits);
         }
 
         if ($produits->isEmpty()) {
@@ -91,7 +91,6 @@ class CategorieController extends AbstractController
             return $this->json(['errors' => $errorMessages], 400);
         }
 
-        // Sauvegarder dans la base de données
         $entityManager->persist( $categories);
         $entityManager->flush();
 
@@ -116,7 +115,6 @@ class CategorieController extends AbstractController
             return $this->json(['error' => 'Données invalides'], 400);
         }
 
-        // Remplacement complet des données
         $categories->setNom($data['nom'] ?? null);
     
 
@@ -153,7 +151,6 @@ class CategorieController extends AbstractController
         return $this->json(['error' => 'Catégorie invalides'], 400);
     }
 
-    // Mise à jour partielle des données
     if (isset($data['nom'])) {
         $categories->setNom($data['nom']);
     }
@@ -176,7 +173,6 @@ class CategorieController extends AbstractController
     #[Route('/categories/{id}', name: 'delete_categorie', methods: ['DELETE'])]
     public function deleteCategorie(int $id, EntityManagerInterface $entityManager): JsonResponse
     {
-        // Récupérer la catégorie
         $categorie = $entityManager->getRepository(Categorie::class)->find($id);
 
         if (!$categorie) {
@@ -186,7 +182,6 @@ class CategorieController extends AbstractController
             return $this->json(['error' => 'Impossible de supprimer une catégorie contenant des produits'], 400);
         }
 
-        // Supprimer la catégorie
         $entityManager->remove($categorie);
         $entityManager->flush();
 

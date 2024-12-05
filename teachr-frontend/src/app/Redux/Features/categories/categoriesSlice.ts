@@ -5,8 +5,6 @@ import axios from "axios";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-// Action asynchrone pour récupérer les produits
-// Action asynchrone pour récupérer les catégories
 export const fetchCategories = createAsyncThunk(
   "categories/fetchCategories",
   async () => {
@@ -15,7 +13,6 @@ export const fetchCategories = createAsyncThunk(
   }
 );
 
-// Action asynchrone pour ajouter une catégorie
 export const addCategorie = createAsyncThunk(
   "categories/addCategorie",
   async (categorie: any) => {
@@ -24,7 +21,6 @@ export const addCategorie = createAsyncThunk(
   }
 );
 
-// Action asynchrone pour mettre à jour une catégorie
 export const updateCategorie = createAsyncThunk(
   "categories/updateCategorie",
   async ({ id, updatedCategorie }: any) => {
@@ -36,7 +32,6 @@ export const updateCategorie = createAsyncThunk(
   }
 );
 
-// Action asynchrone pour supprimer une catégorie
 export const deleteCategorie = createAsyncThunk(
   "categories/deleteCategorie",
   async (id: number) => {

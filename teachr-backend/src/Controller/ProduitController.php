@@ -195,7 +195,6 @@ class ProduitController extends AbstractController
             return $this->json(['error' => 'Données invalides'], 400);
         }
     
-        // Mise à jour des champs simples
         if (isset($data['nom'])) {
             $produit->setNom($data['nom']);
         }
@@ -208,7 +207,6 @@ class ProduitController extends AbstractController
             $produit->setPrix($data['prix']);
         }
     
-        // Mise à jour de la catégorie (relation)
         if (isset($data['categorie_id'])) {
             $categorie = $entityManager->getRepository(Categorie::class)->find($data['categorie_id']);
             if (!$categorie) {
@@ -217,7 +215,6 @@ class ProduitController extends AbstractController
             $produit->setCategorie($categorie);
         }
     
-        // Validation de l'entité
         $errors = $validator->validate($produit);
         if (count($errors) > 0) {
             $errorMessages = [];
@@ -227,7 +224,6 @@ class ProduitController extends AbstractController
             return $this->json(['errors' => $errorMessages], 400);
         }
     
-        // Sauvegarde des modifications
         $entityManager->flush();
     
         return $this->json(['message' => 'Produit mis à jour partiellement avec succès']);

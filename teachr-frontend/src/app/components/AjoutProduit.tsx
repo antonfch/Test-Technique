@@ -42,11 +42,9 @@ const AjoutProduit = ({ isOpen, onClose }: EditProduitModalProps) => {
 
         const validationErrors: { nom?: string; prix?: string } = {};
 
-        // Validation des champs
         if (!nom) validationErrors.nom = 'Le nom est obligatoire.';
         if (!prix || isNaN(Number(prix))) validationErrors.prix = 'Le prix est obligatoire et doit être un nombre.';
 
-        // Si des erreurs, on les affiche et on bloque l'envoi
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
             return;

@@ -30,8 +30,8 @@ TypeScript was chosen for its advantages, such as:
 
 This repository contains a fullstack application with the following structure:
 
-- `backend/`: Symfony backend with a MySQL database using PHPMyAdmin (via XAMPP).
-- `frontend/`: Next.js frontend.
+- `teachr-backend/`: Symfony backend with a MySQL database using PHPMyAdmin (via XAMPP).
+- `teachr-frontend/`: Next.js frontend.
 
 ## Prerequisites
 
@@ -47,10 +47,10 @@ Make sure you have the following installed:
 
 ## Backend Setup (Symfony)
 
-1. Navigate to the `backend` directory:
+1. Navigate to the `teachr-backend` directory:
 
    ```bash
-   cd backend
+   cd teachr-backend
    ```
 
 2. Install PHP dependencies with Composer:
@@ -62,10 +62,10 @@ Make sure you have the following installed:
 3. Configure the database:
 
    - Start XAMPP and ensure the MySQL server is running.
-   - Create a database in PHPMyAdmin (e.g., `symfony_database`).
+   - Create a database in PHPMyAdmin (e.g., `symfony_db`).
    - Update the `.env` file with your database URL:
      ```env
-     DATABASE_URL="mysql://username:password@127.0.0.1:3306/symfony_database"
+     DATABASE_URL="mysql://username:password@127.0.0.1:3306/symfony_db"
      ```
      Replace `username` and `password` with your MySQL credentials.
 
@@ -96,7 +96,7 @@ Make sure you have the following installed:
 1. Navigate to the `frontend` directory:
 
    ```bash
-   cd frontend
+   cd teachr-frontend
    ```
 
 2. Install Node.js dependencies:

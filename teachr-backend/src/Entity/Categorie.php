@@ -78,7 +78,7 @@ class Categorie
     public function removeCategorieProduit(Produit $categorieProduit): static
     {
         if ($this->CategorieProduits->removeElement($categorieProduit)) {
-            // set the owning side to null (unless already changed)
+
             if ($categorieProduit->getCategorie() === $this) {
                 $categorieProduit->setCategorie(null);
             }
